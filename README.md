@@ -19,7 +19,7 @@ mscorefonts    0.0.1
 scikit-learn   1.8.1
 ```
 
-# Citation
+## Citation
 If you use this code, please cite the following manuscript:
 ```
 @article{peng2023data,
