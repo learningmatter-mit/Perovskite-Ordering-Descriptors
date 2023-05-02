@@ -222,8 +222,8 @@ class SissoClassifier(object):
         D_one = D_model[P==1].reshape(-1,init_features)
         ### Whether to apply weights to Domain Overlap
         if self.weighted:
-            weight_zero = D_zero.shape[0]/(D_model.shape[0])
-            weight_one = D_one.shape[0]/(D_model.shape[0])
+            weight_zero = (2.0*D_zero.shape[0])/(D_model.shape[0])
+            weight_one = (2.0*D_one.shape[0])/(D_model.shape[0])
         else:
             weight_zero = 1.0
             weight_one = 1.0
