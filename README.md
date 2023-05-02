@@ -1,13 +1,9 @@
 # Perovskite-Ordering-Descriptors
 Code for the article "Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Oxides"
 
-## Installation
-```
-conda env create -f environment.yml
-conda activate pvsk_order_des
-```
+## Contents
+This repository contains all the data and codes to reproduce the figures of this work.
 
-## Dependencies
 The Jupyter notebooks require the following packages to run correctly:
 ```
 scipy          1.8.1
@@ -17,6 +13,12 @@ seaborn        0.12.2
 matplotlib     3.7.1
 mscorefonts    0.0.1
 scikit-learn   1.8.1
+```
+
+All these packages can be installed using the [environment.yml](environment.yml) file and `conda`:
+```
+conda env create -f environment.yml
+conda activate pvsk_order_des
 ```
 
 ## Citation
