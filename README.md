@@ -1,7 +1,7 @@
 # Perovskite-Ordering-Descriptors
 Code for the article "Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Oxides"
 
-## Contents
+## Usage
 This repository contains all the data and codes to reproduce the figures of this work.
 
 The Jupyter notebooks require the following packages to run correctly:
