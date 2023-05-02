@@ -32,12 +32,12 @@ plt.rcParams['mathtext.fontset'] = 'dejavusans'
 
 
 B_site_degeneracy = {
-    0: 6,
-    1: 8,
-    2: 24,
-    3: 24,
-    4: 6,
-    5: 2
+    0: 6, # layered
+    1: 8, # other
+    2: 24, # other
+    3: 24, # other
+    4: 6, # columnar
+    5: 2 # rocksalt
 }
 
 
