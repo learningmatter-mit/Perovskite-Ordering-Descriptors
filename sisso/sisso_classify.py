@@ -349,7 +349,7 @@ class SissoClassifier(object):
         """
 
         ### If considering all combinations at SO - only do SIS on new features
-        if all_l0_combinations:
+        if self.all_l0_combinations:
             domain_overlap_scores, volume_overlap_scores = self._get_domain_overlap_scores_one_d(D[:,sis_not_selected_indices],P)
         else:
             domain_overlap_scores, volume_overlap_scores = self._get_domain_overlap_scores_one_d(D,P)
@@ -358,7 +358,7 @@ class SissoClassifier(object):
         indices_sorted = np.lexsort((volume_overlap_scores,domain_overlap_scores))
         indices_n_closest = indices_sorted[: self.n_features_per_sis_iter]
         
-        if all_l0_combinations:
+        if self.all_l0_combinations:
             indices_n_closest_out = self.sis_not_selected_indices[indices_n_closest]
             self.sis_not_selected_indices = np.delete(self.sis_not_selected_indices, indices_n_closest)
             return indices_n_closest_out
