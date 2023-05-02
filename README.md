@@ -22,7 +22,7 @@ conda activate pvsk_order_des
 ```
 
 ## Citation
-If you use this code, please cite the following manuscript:
+If you use this code, please cite the following paper:
 ```
 @article{peng2023data,
   title={Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Oxides},
