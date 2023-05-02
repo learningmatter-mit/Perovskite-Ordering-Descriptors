@@ -37,7 +37,7 @@ def Save_Sisso_Experiment_Json(settings,results):
     file_name += ".json"
     print("Saving\n")
     print(file_name+"\n")
-    
+    results_dictionary = {}
     results_dictionary["fpr"] = results[0]
     results_dictionary["tpr"] = results[1]
     results_dictionary["AUC"] = results[2]
