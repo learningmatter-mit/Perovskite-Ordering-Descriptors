@@ -7,6 +7,7 @@ import sklearn
 from itertools import product
 import pickle as pkl
 import json
+import pandas as pd
 import numpy as np
 import copy
 from sisso_classify import SissoClassifier
@@ -33,25 +34,67 @@ def Save_Sisso_Experiment_Json(settings,results):
     file_name += "SoMethod" + settings[2] + "_"
     if settings[3]:
         file_name += "Weighted" +"_"
-    file_name += ".pkl"
+    file_name += ".json"
     print("Saving\n")
     print(file_name+"\n")
+    
+    results_dictionary["fpr"] = results[0]
+    results_dictionary["tpr"] = results[1]
+    results_dictionary["AUC"] = results[2]
     
     with open(file_name, 'w') as f:
         json.dump(results_dictionary, f)
     f.close()
     
-def Run_Sisso_Experiment(input_data,dimension,SO_method,is_weighted):
+
+def get_no_dft_data(input_data):
+    
+    input_features = [
+                      df[["A_ionic_radius","B_ionic_radius_average","B_ionic_radius_diff","B_ionic_radius_multiply"]].to_numpy(dtype=np.float32),
+                      df[["A_ox_state","B_ox_state_average","B_ox_state_diff","B_ox_state_multiply"]].to_numpy(dtype=np.float32),
+                      df[["A_electronegativity","B_electronegativity_average","B_electronegativity_diff","B_electronegativity_multiply"]].to_numpy(dtype=np.float32),
+                      ]
+    
+    feature_names = [
+                    ['r(A)', 'r(B_ave)', 'r(B_diff)', "r(B)r(B')"],
+                    ['z(A)', 'z(B_ave)', 'z(B_diff)', "z(B)z(B')"],
+                    ['X(A)', 'X(B_ave)', 'X(B_diff)', "X(B)X(B')"]
+                    ]
+    
+    experimental_labels = np.where(df['exp_ordering_type'] == 'rs', 1, 0)
+    
+    return input_features,feature_names,experimental_labels
+    
+def get_dft_data(input_data):
+    
+    input_features = [
+                      df[["A_ionic_radius","B_ionic_radius_average","B_ionic_radius_diff","B_ionic_radius_multiply"]].to_numpy(dtype=np.float32),
+                      df[["A_ox_state","B_ox_state_average","B_ox_state_diff","B_ox_state_multiply"]].to_numpy(dtype=np.float32),
+                      df[["A_electronegativity","B_electronegativity_average","B_electronegativity_diff","B_electronegativity_multiply"]].to_numpy(dtype=np.float32),
+                      df[["dft_rocksalt_prob","dft_rocksalt_layered_diff","dft_normalized_conf_entropy"]].to_numpy(dtype=np.float32)
+                      ]
+    
+    feature_names = [['r(A)', 'r(B_ave)', 'r(B_diff)', "r(B)r(B')"],
+                    ['z(A)', 'z(B_ave)', 'z(B_diff)', "z(B)z(B')"],
+                    ['X(A)', 'X(B_ave)', 'X(B_diff)', "X(B)X(B')"],
+                    ['P_rs', 'E_L_rs', 'Entropy']]
+    
+    experimental_labels = np.where(df['exp_ordering_type'] == 'rs', 1, 0)
+    
+    return input_features,feature_names,experimental_labels
+    
+def Run_Sisso_Experiment(input_data_type,dimension,SO_method,is_weighted):
     print("Running Experiment \n")
     #### Cross Validator -- Same As Previous Models
     skf =  StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
     #### Load Data 
-    if input_data == "No_DFT":
-        with open('data_no_dft.pkl', 'rb') as f:
-            data,names,exp_ordering = pkl.load(f)
-    elif input_data == "DFT":
-        with open('data_dft.pkl', 'rb') as f:
-            data,names,exp_ordering = pkl.load(f)
+    
+    input_data = pd.read_json("data/perovskite_ordering_data.json")
+    
+    if input_data_type == "No_DFT":
+        data,names,exp_ordering = get_no_dft_data(input_data)
+    elif input_data_type == "DFT":
+        data,names,exp_ordering = get_dft_data(input_data)
         
     fpr_test = []
     tpr_test = []
@@ -133,5 +176,4 @@ if __name__ == '__main__':
     
     for exp_params in experiment_parameters:
         Run_Sisso_Experiment(*exp_params)
-    
     
