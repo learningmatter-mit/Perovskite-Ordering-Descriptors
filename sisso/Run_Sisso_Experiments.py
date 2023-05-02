@@ -6,6 +6,7 @@ from sklearn import metrics
 import sklearn
 from itertools import product
 import pickle as pkl
+import json
 import numpy as np
 import copy
 from sisso_classify import SissoClassifier
@@ -25,6 +26,20 @@ def Save_Sisso_Experiment(settings,results):
     pkl.dump(results, out_file)
     out_file.close()
     
+def Save_Sisso_Experiment_Json(settings,results):
+    file_name = "data/sisso_results/"
+    file_name += settings[0] + "_"
+    file_name += "DescDim" + str(settings[1]) + "_"
+    file_name += "SoMethod" + settings[2] + "_"
+    if settings[3]:
+        file_name += "Weighted" +"_"
+    file_name += ".pkl"
+    print("Saving\n")
+    print(file_name+"\n")
+    
+    with open(file_name, 'w') as f:
+        json.dump(results_dictionary, f)
+    f.close()
     
 def Run_Sisso_Experiment(input_data,dimension,SO_method,is_weighted):
     print("Running Experiment \n")
@@ -101,9 +116,10 @@ def Run_Sisso_Experiment(input_data,dimension,SO_method,is_weighted):
         AUC_test.append(curr_test_AUC)
         
     settings = (input_data,dimension,SO_method,is_weighted)
-    results = (fpr_test,tpr_test,AUC_test,features,best_1d_do,models,scalers,train_indexes,test_indexes)
-    Save_Sisso_Experiment(settings,results)
-    
+    #results = (fpr_test,tpr_test,AUC_test,features,best_1d_do,models,scalers,train_indexes,test_indexes)
+    #Save_Sisso_Experiment(settings,results)
+    results = (fpr_test,tpr_test,AUC_test)
+    Save_Sisso_Experiment_Json(settings,results)
     
     
 if __name__ == '__main__':
