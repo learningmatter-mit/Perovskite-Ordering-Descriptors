@@ -154,9 +154,9 @@ def Run_Sisso_Experiment(input_data_type,dimension,SO_method,is_weighted):
         fpr_test_iter,tpr_test_iter,_ = sklearn.metrics.roc_curve(exp_test, preds_test[:,1])
         curr_test_AUC = sklearn.metrics.auc(fpr_test_iter,tpr_test_iter)
 
-        fpr_test.append(fpr_test_iter)
-        tpr_test.append(tpr_test_iter)
-        AUC_test.append(curr_test_AUC)
+        fpr_test.append(fpr_test_iter.tolist())
+        tpr_test.append(tpr_test_iter.tolist())
+        AUC_test.append(curr_test_AUC.tolist())
         
     settings = (input_data_type,dimension,SO_method,is_weighted)
     #results = (fpr_test,tpr_test,AUC_test,features,best_1d_do,models,scalers,train_indexes,test_indexes)
