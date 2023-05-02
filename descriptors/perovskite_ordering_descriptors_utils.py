@@ -267,6 +267,43 @@ def plot_posthoc_analysis(df, axs, i, key, j, threshold, descriptors, plot_setti
     return temp_auc_results
 
 
+def plot_boundaries_sisso(X, y, ax, descriptor_set, colorbar, exp_ordering_param, descriptor_names):
+    X_train, X_test, y_train, y_test, exp_ordering_param_train, exp_ordering_param_test = train_test_split(X, y, exp_ordering_param, test_size=0.2, random_state=0)
+    model = Pipeline(steps=[('scaler', StandardScaler()), ('regressor', LogisticRegression(max_iter=1000))])        
+    model.fit(X_train, y_train)
+    scaler_means = model[0].mean_
+    scaler_stds = np.sqrt(model[0].var_)
+    regressor_coefs = model[1].coef_[0]
+    regressor_intercept = model[1].intercept_[0]
+
+    xlabel = descriptor_names[descriptor_set[0]]
+    ylabel = descriptor_names[descriptor_set[1]]
+    train_plot_x = X_train[:,0]
+    train_plot_y = X_train[:,1]
+    test_plot_x = X_test[:,0]
+    test_plot_y = X_test[:,1]       
+
+    plot_x_all = np.array(list(train_plot_x.flatten()) + list(test_plot_x.flatten()))
+    plot_y_all = np.array(list(train_plot_y.flatten()) + list(test_plot_y.flatten()))
+    xlim_grid = [-0.2*plot_x_all.max() + 1.2*plot_x_all.min(), 1.2*plot_x_all.max() - 0.2*plot_x_all.min()]
+    ylim_grid = [-0.2*plot_y_all.max() + 1.2*plot_y_all.min(), 1.2*plot_y_all.max() - 0.2*plot_y_all.min()]
+    xgrid, ygrid = np.meshgrid(np.linspace(xlim_grid[0], xlim_grid[1], 100), np.linspace(ylim_grid[0], ylim_grid[1], 100))
+    
+    zgrid = model[1].predict_proba(model[0].transform(np.hstack((xgrid.reshape(-1,1), ygrid.reshape(-1,1)))))[:,1:2].reshape(100,100)
+    ax.contourf(xgrid, ygrid, zgrid, levels=np.linspace(0,1,1000), cmap=colorbar)
+
+    temp_colors = np.where((exp_ordering_param_train > 0) & (exp_ordering_param_train < 0.5), '#f9d1c1', np.where(y_train==1, '#ef8a62', '#67a9cf'))
+    temp_linewidths = np.where((exp_ordering_param_train > 0) & (exp_ordering_param_train < 0.5), 1, 2)
+    ax.scatter(train_plot_x, train_plot_y, marker='o', s=100, c=temp_colors, linewidths=temp_linewidths, edgecolors='black', alpha=0.6)
+    temp_colors = np.where((exp_ordering_param_test > 0) & (exp_ordering_param_test < 0.5), '#f9d1c1', np.where(y_test==1, '#ef8a62', '#67a9cf'))
+    temp_linewidths = np.where((exp_ordering_param_test > 0) & (exp_ordering_param_test < 0.5), 1, 2)
+    ax.scatter(test_plot_x, test_plot_y, marker='^', s=100, c=temp_colors, linewidths=temp_linewidths, edgecolors='black', alpha=0.6)
+     
+    xlim = [-0.1*plot_x_all.max() + 1.1*plot_x_all.min(), 1.1*plot_x_all.max() - 0.1*plot_x_all.min()]
+    ylim = [-0.1*plot_y_all.max() + 1.1*plot_y_all.min(), 1.1*plot_y_all.max() - 0.1*plot_y_all.min()]
+    ax.set(xlabel=xlabel, ylabel=ylabel, xlim=xlim, ylim=ylim);
+
+
 def get_prototype_from_random_number(num):
     if (num >= 0) and (num < 6):
         return 0
