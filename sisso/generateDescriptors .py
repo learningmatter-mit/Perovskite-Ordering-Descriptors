@@ -384,18 +384,18 @@ def generateDescriptors(x,xVars,ops=2):
             curr_x = curr_x[:,info]
             curr_x_names = [curr_x_names[j] for j in range(len(info)) if info[j]]
             curr_x_parents = [curr_x_parents[j] for j in range(len(info)) if info[j]]
-            
-            x[i] = curr_x
-            xVars[i] = curr_x_names
-            parents[i] = curr_x_parents
 
             ##### Remove Features with very small standard deviation - these were found to be unstable in stages of SISSO
     
             valid_std = (x_finite.std(axis=0)>0.000001)
 
-            x_out = x_finite[:,valid_std]
-            xVars_out = [xVars_finite[i] for i in range(len(valid_std)) if valid_std[i]]
-            parents_out = [parents_finite[i] for i in range(len(valid_std)) if valid_std[i]]
+            curr_x = x_finite[:,valid_std]
+            curr_x_names = [xVars_finite[i] for i in range(len(valid_std)) if valid_std[i]]
+            curr_x_parents = [parents_finite[i] for i in range(len(valid_std)) if valid_std[i]]
+            
+            x[i] = curr_x
+            xVars[i] = curr_x_names
+            parents[i] = curr_x_parents
             
         x_ref = []
         curr_ref_val = 0
