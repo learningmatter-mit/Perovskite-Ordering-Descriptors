@@ -390,8 +390,8 @@ def generateDescriptors(x,xVars,ops=2):
             valid_std = (x_finite.std(axis=0)>0.000001)
 
             curr_x = x_finite[:,valid_std]
-            curr_x_names = [xVars_finite[i] for i in range(len(valid_std)) if valid_std[i]]
-            curr_x_parents = [parents_finite[i] for i in range(len(valid_std)) if valid_std[i]]
+            curr_x_names = [curr_x_names[i] for i in range(len(valid_std)) if valid_std[i]]
+            curr_x_parents = [curr_x_parents[i] for i in range(len(valid_std)) if valid_std[i]]
             
             x[i] = curr_x
             xVars[i] = curr_x_names
