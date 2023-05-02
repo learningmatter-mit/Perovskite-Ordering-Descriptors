@@ -1,5 +1,5 @@
 # Perovskite-Ordering-Descriptors
-Repository for "Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Oxides"
+Repository for "Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Oxides".
 
 ## Usage
 This repository contains all the data and codes to reproduce the figures of this work.
