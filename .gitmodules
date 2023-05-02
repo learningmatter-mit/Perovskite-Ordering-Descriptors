@@ -1,0 +1,3 @@
+[submodule "sisso/SISSORegressor_MATLAB"]
+	path = sisso/SISSORegressor_MATLAB
+	url = https://github.com/NREL/SISSORegressor_MATLAB.git
