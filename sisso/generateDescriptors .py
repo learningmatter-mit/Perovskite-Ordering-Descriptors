@@ -387,9 +387,9 @@ def generateDescriptors(x,xVars,ops=2):
 
             ##### Remove Features with very small standard deviation - these were found to be unstable in stages of SISSO
     
-            valid_std = (x_finite.std(axis=0)>0.000001)
+            valid_std = (curr_x.std(axis=0)>0.000001)
 
-            curr_x = x_finite[:,valid_std]
+            curr_x = curr_x[:,valid_std]
             curr_x_names = [curr_x_names[i] for i in range(len(valid_std)) if valid_std[i]]
             curr_x_parents = [curr_x_parents[i] for i in range(len(valid_std)) if valid_std[i]]
             
