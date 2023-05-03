@@ -10,8 +10,8 @@ import json
 import pandas as pd
 import numpy as np
 import copy
-from sisso.sisso_classify import SissoClassifier
-from sisso.generateDescriptors import generateDescriptors
+from sisso_classify import SissoClassifier
+from generateDescriptors import generateDescriptors
 
 def Save_Sisso_Experiment(settings,results):
     file_name = ""
@@ -28,7 +28,7 @@ def Save_Sisso_Experiment(settings,results):
     out_file.close()
     
 def Save_Sisso_Experiment_Json(settings,results):
-    file_name = "data/sisso_results/"
+    file_name = "../data/sisso_results/"
     file_name += settings[0] + "_"
     file_name += "DescDim" + str(settings[1]) + "_"
     file_name += "SoMethod" + settings[2] + "_"
@@ -89,7 +89,7 @@ def Run_Sisso_Experiment(input_data_type,dimension,SO_method,is_weighted):
     skf =  StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
     #### Load Data 
     
-    input_data = pd.read_json("data/perovskite_ordering_data.json")
+    input_data = pd.read_json("../data/perovskite_ordering_data.json")
     
     if input_data_type == "No_DFT":
         data,names,exp_ordering = get_no_dft_data(input_data)
