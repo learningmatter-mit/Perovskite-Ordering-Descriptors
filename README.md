@@ -27,7 +27,7 @@ If you use this code, please cite the following paper:
 @article{peng2023data,
   title={Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Oxides},
   author={Jiayu Peng and James K. Damewood and Rafael Gómez-Bombarelli},
-  journal={arXiv},
+  journal={arXiv:2305.01806},
   url = {https://arxiv.org/abs/2305.01806},
   year={2023}
 }
