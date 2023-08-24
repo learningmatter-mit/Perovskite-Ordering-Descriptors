@@ -1,5 +1,5 @@
 # Perovskite-Ordering-Descriptors
-Repo for our paper "[Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Oxides](https://arxiv.org/abs/2305.01806)".
+Repo for our paper "[Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Perovskite Oxides](https://arxiv.org/abs/2305.01806)".
 
 ## Usage
 This repository contains all the data and codes to reproduce the figures of this work.
@@ -25,7 +25,7 @@ conda activate pvsk_order_des
 If you use this code, please cite the following paper:
 ```
 @article{peng2023data,
-  title={Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Oxides},
+  title={Data-Driven, Physics-Informed Descriptors of Cation Ordering in Multicomponent Perovskite Oxides},
   author={Jiayu Peng and James Damewood and Rafael Gómez-Bombarelli},
   journal={arXiv:2305.01806},
   url = {https://arxiv.org/abs/2305.01806},
