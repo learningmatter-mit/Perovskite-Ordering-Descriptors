@@ -47,7 +47,51 @@ def Save_Sisso_Experiment_Json(settings,results):
     f.close()
     
 
+def extract_input_data(input_data):
+
+    B_ionic_radius_average = []
+    B_ionic_radius_diff = []
+    B_ionic_radius_multiply = []
+
+    B_ox_state_average = []
+    B_ox_state_diff = []
+    B_ox_state_multiply = []
+
+    B_electronegativity_average = []
+    B_electronegativity_diff = []
+    B_electronegativity_multiply = []
+
+    for i in range(len(input_data)):
+        curr_row = input_data.iloc[i]
+        B_ionic_radius_average.append(curr_row.B_ionic_radius["average"])
+        B_ionic_radius_diff.append(curr_row.B_ionic_radius["diff"])
+        B_ionic_radius_multiply.append(curr_row.B_ionic_radius["multiply"])
+
+        B_ox_state_average.append(curr_row.B_ox_state["average"])
+        B_ox_state_diff.append(curr_row.B_ox_state["diff"])
+        B_ox_state_multiply.append(curr_row.B_ox_state["multiply"])
+
+        B_electronegativity_average.append(curr_row.B_electronegativity["average"])
+        B_electronegativity_diff.append(curr_row.B_electronegativity["diff"])
+        B_electronegativity_multiply.append(curr_row.B_electronegativity["multiply"])
+
+    input_data["B_ionic_radius_average"]=B_ionic_radius_average
+    input_data["B_ionic_radius_diff"]=B_ionic_radius_diff
+    input_data["B_ionic_radius_multiply"]=B_ionic_radius_multiply
+
+    input_data["B_ox_state_average"]=B_ox_state_average
+    input_data["B_ox_state_diff"]=B_ox_state_diff
+    input_data["B_ox_state_multiply"]=B_ox_state_multiply
+
+    input_data["B_electronegativity_average"]=B_electronegativity_average
+    input_data["B_electronegativity_diff"]=B_electronegativity_diff
+    input_data["B_electronegativity_multiply"]=B_electronegativity_multiply
+
+    return input_data
+
 def get_no_dft_data(input_data):
+
+    input_data = extract_input_data(input_data)
     
     input_features = [
                       input_data[["A_ionic_radius","B_ionic_radius_average","B_ionic_radius_diff","B_ionic_radius_multiply"]].to_numpy(dtype=np.float32),
@@ -66,12 +110,14 @@ def get_no_dft_data(input_data):
     return input_features,feature_names,experimental_labels
     
 def get_dft_data(input_data):
+
+    input_data = extract_input_data(input_data)
     
     input_features = [
                       input_data[["A_ionic_radius","B_ionic_radius_average","B_ionic_radius_diff","B_ionic_radius_multiply"]].to_numpy(dtype=np.float32),
                       input_data[["A_ox_state","B_ox_state_average","B_ox_state_diff","B_ox_state_multiply"]].to_numpy(dtype=np.float32),
                       input_data[["A_electronegativity","B_electronegativity_average","B_electronegativity_diff","B_electronegativity_multiply"]].to_numpy(dtype=np.float32),
-                      input_data[["dft_rocksalt_prob","dft_rocksalt_layered_diff","dft_normalized_conf_entropy"]].to_numpy(dtype=np.float32)
+                      input_data[["dft_rocksalt_prob","dft_normalized_conf_entropy"]].to_numpy(dtype=np.float32)
                       ]
     
     feature_names = [['r(A)', 'r(B_ave)', 'r(B_diff)', "r(B)r(B')"],
