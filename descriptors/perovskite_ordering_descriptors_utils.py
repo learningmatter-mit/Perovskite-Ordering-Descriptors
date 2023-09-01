@@ -15,6 +15,7 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import LogLocator
 from scipy.spatial.distance import cosine
+from sklearn.metrics import r2_score
 
 
 plt.rcParams["figure.figsize"] = (13, 8)
