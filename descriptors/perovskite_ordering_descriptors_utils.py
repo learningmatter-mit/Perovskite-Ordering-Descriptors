@@ -1,4 +1,5 @@
 import json
+import copy
 import collections
 import numpy as np
 import pandas as pd
@@ -254,50 +255,50 @@ def plot_correlation_matrix(df, data_type, ax):
         corr, mask=mask, cmap=cmap, ax=ax, vmax=1, vmin=-1, center=0, square=True, annot=True, 
         linewidths=.5, cbar_kws={"shrink": .5}, xticklabels=ticklabels, yticklabels=ticklabels
         )
-    heatmap.collections[0].colorbar.set_ticks([-1,0,1])
+    heatmap.collections[0].colorbar.set_ticks([-1, 0, 1])
 
 
-def get_prototype_from_random_number(num):
-    if (num >= 0) and (num < 6):
-        return 0
-    elif (num >= 6) and (num < 14):
-        return 1
-    elif (num >= 14) and (num < 38):
-        return 2
-    elif (num >= 38) and (num < 62):
-        return 3
-    elif (num >= 62) and (num < 68):
-        return 4
-    elif (num >= 68) and (num < 70):
-        return 5
-    else:
-        raise Exception("Number range outside [0, 70)!")
-
-
-def averaging_for_sampling(row, prop, rng_range=None, rng_seed=0, override=None, num_range=None):
+def averaging_for_sampling(row, prop, rng_range=None, rng_seed=0, override=None, num_range=None, m3gnet_lowest=0):
     temp_probs_energies = []
     temp_props = []
 
-    if rng_range != None:
-        rng = np.random.default_rng(seed=rng_seed)
-        random_num = get_prototype_from_random_number(rng.integers(rng_range[0], rng_range[1]))
+    if m3gnet_lowest != 0:
+        sorted_indices = list(np.argsort(row['m3gnet_energy']))[:m3gnet_lowest]
+        
+        for i in range(6):
+            for j in range(B_site_degeneracy[i]):
+                if i in sorted_indices:
+                    temp_probs_energies.append(row['dft_energy'][i])
+                    temp_props.append(row[prop][i])
 
-    for i in range(6):
-        for j in range(B_site_degeneracy[i]):
-            if rng_range != None:
-                if i in num_range:
-                    k = random_num
+    else:
+        if rng_range != None:
+            rng = np.random.default_rng(seed=rng_seed)
+            random_num = rng.integers(rng_range[0], rng_range[1])
+            finalized_override = random_num
+        elif override != None:
+            finalized_override = override
+        else:
+            finalized_override = None
+
+        for i in range(6):
+            for j in range(B_site_degeneracy[i]):
+                included = False
+
+                if finalized_override == None:
+                    included = True
                 else:
-                    k = i
-            elif override != None:
-                if i in num_range:
-                    k = override
-                else:
-                    k = i
-            else:
-                k = i
-            temp_probs_energies.append(row['dft_energy'][k])
-            temp_props.append(row[prop][k])        
+                    if i not in num_range:
+                        included = True
+                    else:
+                        if i == finalized_override:
+                            included = True
+                        else:
+                            included = False
+
+                if included:
+                    temp_probs_energies.append(row['dft_energy'][i])
+                    temp_props.append(row[prop][i])        
     
     temp_probs = softmax(-np.array(list(temp_probs_energies))/(1300*0.0257/300))
     sampled_data = np.sum(np.multiply(np.array(temp_props), np.array(temp_probs)))
@@ -318,18 +319,18 @@ def sampling_test_without_descriptors(df, prop, sampling_types, repeat_random_ti
             properties_sampled[sampling_type] = []
         costs[sampling_type] = 0
     
-    for _, row in df.iterrows():    
+    for index, row in df.iterrows():    
         properties_sampled['ordering_averaged'].append(averaging_for_sampling(row, prop))
         
         for i in range(repeat_random_times):
-            properties_sampled['random'][i].append(averaging_for_sampling(row, prop, rng_range=[0, 70], rng_seed=i, num_range=[0, 1, 2, 3, 4, 5]))
+            properties_sampled['random'][i].append(averaging_for_sampling(row, prop, rng_range=[0, 6], rng_seed=(index+1000000*i), num_range=[0, 1, 2, 3, 4, 5]))
         costs['random'] += 1
         
         properties_sampled['rocksalt'].append(row[prop][5])     
         costs['rocksalt'] += 1
         
         for i in range(repeat_random_times):
-            properties_sampled['rocksalt_random'][i].append(averaging_for_sampling(row, prop, rng_range=[0, 68], rng_seed=i, num_range=[0, 1, 2, 3, 4]))
+            properties_sampled['rocksalt_random'][i].append(averaging_for_sampling(row, prop, rng_range=[0, 5], rng_seed=(index+1000000*i), num_range=[0, 1, 2, 3, 4]))
         costs['rocksalt_random'] += 2
         
         properties_sampled['rocksalt_layered'].append(averaging_for_sampling(row, prop, override=0, num_range=[1, 2, 3, 4]))
@@ -367,13 +368,21 @@ def sampling_test_with_descriptors(df, prop, sampling_types, repeat_random_times
         'm3gnet_rocksalt_all': ['m3gnet_rocksalt_prob', 'm3gnet_normalized_conf_entropy']
     }
     
-    properties_sampled = {'ordering_averaged': []}
-    costs = {}
+    properties_sampled = {'ordering_averaged': [], 'm3gnet_lowest_1': [], 'm3gnet_lowest_2': []}
+    costs = {'m3gnet_lowest_1': 1, 'm3gnet_lowest_2': 2}
         
     for _, row in df.iterrows():    
         properties_sampled['ordering_averaged'].append(averaging_for_sampling(row, prop))
+        properties_sampled['m3gnet_lowest_1'].append(averaging_for_sampling(row, prop, m3gnet_lowest=1))
+        properties_sampled['m3gnet_lowest_2'].append(averaging_for_sampling(row, prop, m3gnet_lowest=2))
 
-    for sampling_type in sampling_types:
+    sampling_types_filtered = copy.deepcopy(sampling_types)
+    if 'm3gnet_lowest_1' in sampling_types_filtered:
+        sampling_types_filtered.remove('m3gnet_lowest_1')
+    if 'm3gnet_lowest_2' in sampling_types_filtered:
+        sampling_types_filtered.remove('m3gnet_lowest_2')
+
+    for sampling_type in sampling_types_filtered:
         if 'random' in sampling_type:
             temp_properties_sampled = {}
             for i in range(repeat_random_times):
@@ -385,8 +394,10 @@ def sampling_test_with_descriptors(df, prop, sampling_types, repeat_random_times
         X = df[descriptor_sets[sampling_type]].to_numpy()
         y = df['y_true'].to_numpy()
         cross_val_analysis_result = cross_val_analysis_for_sampling(X, y)
-                
+
+        index = 0        
         for predicted_class, test_ndx in zip(list(cross_val_analysis_result['predicted_classes']), list(cross_val_analysis_result['test_ndxs'])):
+            index += 1
             row = df.iloc[test_ndx]
             
             if predicted_class == 1: # ordered
@@ -410,7 +421,7 @@ def sampling_test_with_descriptors(df, prop, sampling_types, repeat_random_times
             elif predicted_class == 0: # disordered
                 if sampling_type == 'm3gnet_rocksalt_random':
                     for i in range(repeat_random_times):
-                        temp_properties_sampled[i].append(averaging_for_sampling(row, prop, rng_range=[0, 68], rng_seed=i, num_range=[0, 1, 2, 3, 4]))
+                        temp_properties_sampled[i].append(averaging_for_sampling(row, prop, rng_range=[0, 5], rng_seed=(index+1000000*i), num_range=[0, 1, 2, 3, 4]))
                     costs[sampling_type] += 2                                        
                 
                 elif sampling_type == 'm3gnet_rocksalt_all':
@@ -419,7 +430,7 @@ def sampling_test_with_descriptors(df, prop, sampling_types, repeat_random_times
         
                 elif sampling_type == 'dft_rocksalt_layered_random':
                     for i in range(repeat_random_times):
-                        temp_properties_sampled[i].append(averaging_for_sampling(row, prop, rng_range=[6, 68], rng_seed=i, num_range=[1, 2, 3, 4]))
+                        temp_properties_sampled[i].append(averaging_for_sampling(row, prop, rng_range=[1, 5], rng_seed=(index+1000000*i), num_range=[1, 2, 3, 4]))
                     costs[sampling_type] += 3                   
 
                 elif sampling_type == 'dft_rocksalt_layered_all':
@@ -442,14 +453,14 @@ def plot_sampling_results(df, sampling_types, prop, axs, axis_name, axis_lim):
     
     for i in (range(len(sampling_types))):
         sampling_types_cut = sampling_types[i]
-        
-        if i == 0:
-            properties_sampled, costs = sampling_test_without_descriptors(df, prop, sampling_types_cut)
-        else:
-            properties_sampled, costs = sampling_test_with_descriptors(df, prop, sampling_types_cut)
 
         for i in (range(len(sampling_types_cut))):
             sampling_type = sampling_types_cut[i]
+            if ('dft' in sampling_type) or ('m3gnet' in sampling_type):
+                properties_sampled, costs = sampling_test_with_descriptors(df, prop, sampling_types_cut)
+            else:
+                properties_sampled, costs = sampling_test_without_descriptors(df, prop, sampling_types_cut)
+            
             y_true = properties_sampled['ordering_averaged']
 
             if 'random' in sampling_type:
